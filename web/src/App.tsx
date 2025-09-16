@@ -1,5 +1,5 @@
-// import "./index.css";
+import { Routes } from "./routes";
 
 export function App() {
-  return <h1 className="text-4xl font-bold text-gray-500">Testing Tailwind</h1>;
+  return <Routes />;
 }
