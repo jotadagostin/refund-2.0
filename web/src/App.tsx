@@ -1,3 +1,5 @@
+// import "./index.css";
+
 export function App() {
-  return <h1 className="text-3xl  text-red-700">Hello world!</h1>;
+  return <h1 className="text-4xl font-bold text-gray-500">Testing Tailwind</h1>;
 }
