@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
 import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories";
+import { Upload } from "../components/Upload";
 
 export function Refund() {
+  const [category, setCategory] = useState("");
+
   console.log(CATEGORIES_KEYS);
   return (
     <form
@@ -19,11 +23,24 @@ export function Refund() {
       </header>
 
       <Input required legend="Name of the solicitation" />
-      <Select required legend="Category">
-        {CATEGORIES_KEYS.map((category) => (
-          <option value="">{CATEGORIES[category].name}</option>
-        ))}
-      </Select>
+
+      <div className="flex gap-4">
+        <Select
+          required
+          legend="Category"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+        >
+          {CATEGORIES_KEYS.map((category) => (
+            <option key={category} value={category}>
+              {CATEGORIES[category].name}
+            </option>
+          ))}
+        </Select>
+        <Input legend="Amount" required />
+      </div>
+
+      <Upload filename="jota.png" />
     </form>
   );
 }
