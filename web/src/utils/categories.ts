@@ -26,3 +26,7 @@ export const CATEGORIES = {
     icon: accomodationSvg,
   },
 };
+
+export const CATEGORIES_KEYS = Object.keys(CATEGORIES) as Array<
+  keyof typeof CATEGORIES
+>;

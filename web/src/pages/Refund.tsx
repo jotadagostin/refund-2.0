@@ -1,7 +1,9 @@
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
+import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories";
 
 export function Refund() {
+  console.log(CATEGORIES_KEYS);
   return (
     <form
       action=""
@@ -17,7 +19,11 @@ export function Refund() {
       </header>
 
       <Input required legend="Name of the solicitation" />
-      <Select required legend="Category" />
+      <Select required legend="Category">
+        {CATEGORIES_KEYS.map((category) => (
+          <option value="">{CATEGORIES[category].name}</option>
+        ))}
+      </Select>
     </form>
   );
 }
