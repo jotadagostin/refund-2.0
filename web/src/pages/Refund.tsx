@@ -1,16 +1,31 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
+
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
 import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories";
 import { Upload } from "../components/Upload";
+import { Button } from "../components/Button";
 
 export function Refund() {
+  const [name, SetName] = useState("");
+  const [amount, SetAmount] = useState("");
   const [category, setCategory] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [filename, setFileName] = useState<File | null>(null);
 
-  console.log(CATEGORIES_KEYS);
+  const navigate = useNavigate();
+
+  function onSubmit(event: React.FormEvent) {
+    event.preventDefault();
+
+    console.log(name, amount, category, filename);
+    navigate("/confirm", { state: { fromSubmit: true } });
+  }
+
   return (
     <form
-      action=""
+      onSubmit={onSubmit}
       className="bg-gray-500 w-full rounded-xl flex flex-col p-10 gap-6 lg:min-w-[512px]"
     >
       <header>
@@ -22,7 +37,12 @@ export function Refund() {
         </p>
       </header>
 
-      <Input required legend="Name of the solicitation" />
+      <Input
+        required
+        legend="Name of the solicitation"
+        value={name}
+        onChange={(event) => SetName(event.target.value)}
+      />
 
       <div className="flex gap-4">
         <Select
@@ -37,10 +57,24 @@ export function Refund() {
             </option>
           ))}
         </Select>
-        <Input legend="Amount" required />
+        <Input
+          legend="Amount"
+          required
+          value={amount}
+          onChange={(event) => SetAmount(event.target.value)}
+        />
       </div>
 
-      <Upload filename="jota.png" />
+      <Upload
+        filename={filename && filename.name}
+        onChange={(event) =>
+          event.target.files && setFileName(event.target.files[0])
+        }
+      />
+
+      <Button type="submit" isLoading={isLoading}>
+        Send
+      </Button>
     </form>
   );
 }
