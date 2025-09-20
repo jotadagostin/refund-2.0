@@ -1,4 +1,5 @@
 import { Navigate, useLocation } from "react-router";
+import okSvg from "../assets/ok.svg";
 
 export function Confirm() {
   const location = useLocation();
@@ -6,5 +7,23 @@ export function Confirm() {
   if (!location.state?.fromSubmit) {
     return <Navigate to="/" />;
   }
-  return <h1>Confirm</h1>;
+  return (
+    <div className="bg-gray lg:w-[512px] rounded-xl flex flex-col items-center p-10 gap-6">
+      <h1 className="text-2xl font-bold text-center text-green-100">
+        Solicitation sended
+      </h1>
+      <img src={okSvg} alt="gren check icon" className="w-28" />
+      <p>
+        Now you just need to wait. Your solicitation was sended and soon the
+        financial sector will be in touch with you{" "}
+      </p>
+
+      <a
+        href="/"
+        className="w-full p-3 text-center bg-green-100 rounded-lg text-white hover:bg-green-200 transition ease-in-out"
+      >
+        New solicitation
+      </a>
+    </div>
+  );
 }
