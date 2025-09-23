@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
-
+import { useNavigate, useParams } from "react-router";
+import fileSvg from "../assets/file.svg";
 import { Input } from "../components/Input";
 import { Select } from "../components/Select";
 import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories";
@@ -8,16 +8,22 @@ import { Upload } from "../components/Upload";
 import { Button } from "../components/Button";
 
 export function Refund() {
-  const [name, SetName] = useState("");
-  const [amount, SetAmount] = useState("");
-  const [category, setCategory] = useState("");
+  const [name, SetName] = useState("teste");
+  const [amount, SetAmount] = useState("33");
+  const [category, setCategory] = useState("transport");
   const [isLoading, setIsLoading] = useState(false);
   const [filename, setFileName] = useState<File | null>(null);
 
   const navigate = useNavigate();
+  const params = useParams<{ id: string }>();
+  console.log(params.id);
 
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
+
+    if (params.id) {
+      return navigate(-1);
+    }
 
     console.log(name, amount, category, filename);
     navigate("/confirm", { state: { fromSubmit: true } });
@@ -42,6 +48,7 @@ export function Refund() {
         legend="Name of the solicitation"
         value={name}
         onChange={(event) => SetName(event.target.value)}
+        disabled={!!params.id}
       />
 
       <div className="flex gap-4">
@@ -50,6 +57,7 @@ export function Refund() {
           legend="Category"
           value={category}
           onChange={(event) => setCategory(event.target.value)}
+          disabled={!!params.id}
         >
           {CATEGORIES_KEYS.map((category) => (
             <option key={category} value={category}>
@@ -62,18 +70,30 @@ export function Refund() {
           required
           value={amount}
           onChange={(event) => SetAmount(event.target.value)}
+          disabled={!!params.id}
         />
       </div>
 
-      <Upload
-        filename={filename && filename.name}
-        onChange={(event) =>
-          event.target.files && setFileName(event.target.files[0])
-        }
-      />
+      {params.id ? (
+        <a
+          href="https://www.rocketseat.com.br/"
+          target="blank"
+          className="text-sm text-green-100 font-semibold flex items-center justify-center gap-2 my-6 hover:opacity-70 transition ease-linear"
+        >
+          <img src={fileSvg} alt="file green icon" />
+          Open the voucher
+        </a>
+      ) : (
+        <Upload
+          filename={filename && filename.name}
+          onChange={(event) =>
+            event.target.files && setFileName(event.target.files[0])
+          }
+        />
+      )}
 
       <Button type="submit" isLoading={isLoading}>
-        Send
+        {params.id ? "Return" : "Send"}
       </Button>
     </form>
   );
