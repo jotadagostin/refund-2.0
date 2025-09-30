@@ -6,11 +6,10 @@ import { useState } from "react";
 export function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsloading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    console.log(email, password);
   }
   return (
     <form onSubmit={onSubmit} className="w-full flex flex-col gap-4">

@@ -2,17 +2,50 @@ import type React from "react";
 import { Button } from "../components/Button";
 import { Input } from "../components/Input";
 import { useState } from "react";
+import { z, ZodError } from "zod";
+
+const signUpSchema = z
+  .object({
+    name: z.string().trim().min(1, { message: "inform the name" }),
+    email: z.string().email({ message: "Invalid email" }),
+    password: z
+      .string()
+      .min(6, { message: "password needs at least 6 characters" }),
+    passwordConfirm: z.string({ message: "confirm the password" }),
+  })
+  .refine((data) => data.password === data.passwordConfirm, {
+    message: "Passwords are not the same",
+    path: ["passwordConfirm"],
+  });
 
 export function SignUp() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const [isLoading, setIsloading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    console.log(name, email, password, passwordConfirm);
+
+    try {
+      setIsLoading(true);
+
+      const data = signUpSchema.parse({
+        name,
+        email,
+        password,
+        passwordConfirm,
+      });
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return alert(error.issues[0].message);
+      }
+
+      alert("it was not possible to apply...");
+    } finally {
+      setIsLoading(false);
+    }
   }
   return (
     <form onSubmit={onSubmit} className="w-full flex flex-col gap-4">
