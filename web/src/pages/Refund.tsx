@@ -6,11 +6,22 @@ import { Select } from "../components/Select";
 import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories";
 import { Upload } from "../components/Upload";
 import { Button } from "../components/Button";
+import z, { ZodError } from "zod";
+
+const refundScheme = z.object({
+  name: z
+    .string()
+    .min(3, { message: "inform a clear name for the solicitation" }),
+  category: z.string().min(1, { message: "inform a category" }),
+  amount: z.coerce
+    .number({ message: "Inform a valid amount" })
+    .positive({ message: "Inform a valid amount or superior to 0" }),
+});
 
 export function Refund() {
-  const [name, SetName] = useState("teste");
-  const [amount, SetAmount] = useState("33");
-  const [category, setCategory] = useState("transport");
+  const [name, SetName] = useState("");
+  const [amount, SetAmount] = useState("");
+  const [category, setCategory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [filename, setFileName] = useState<File | null>(null);
 
@@ -25,8 +36,26 @@ export function Refund() {
       return navigate(-1);
     }
 
-    console.log(name, amount, category, filename);
-    navigate("/confirm", { state: { fromSubmit: true } });
+    try {
+      setIsLoading(true);
+
+      const data = refundScheme.parse({
+        name,
+        category,
+        amount: amount.replace(",", "."),
+      });
+
+      navigate("/confirm", { state: { fromSubmit: true } });
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof ZodError) {
+        return alert(error.issues[0].message);
+      }
+      alert("it was not posssible to realize the solicitation");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
