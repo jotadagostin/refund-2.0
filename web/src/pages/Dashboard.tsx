@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import searchSvg from "../assets/search.svg";
 import { Input } from "../components/Input";
 import { Button } from "../components/Button";
@@ -6,24 +6,43 @@ import { Refunditem, type RefundItemProps } from "../components/RefundItem";
 import { CATEGORIES } from "../utils/categories";
 import { formatCurrency } from "../utils/formatCurrency";
 import { Pagination } from "../components/Paginantion";
+import { api } from "../services/api";
+import { AxiosError } from "axios";
 
-const REFUND_EXAMPLE = {
-  id: "123",
-  name: "Rodrigo",
-  category: "Transport",
-  amount: formatCurrency(34.5),
-  categoryImg: CATEGORIES["transport"].icon,
-};
+const PER_PAGE = 5;
 
 export function Dashboard() {
   const [name, setName] = useState("");
   const [page, setPage] = useState(1);
-  const [totalOfPage, seTotalOfPage] = useState(10);
-  const [refunds, setRefunds] = useState<RefundItemProps[]>([REFUND_EXAMPLE]);
+  const [totalOfPage, setTotalOfPage] = useState(0);
+  const [refunds, setRefunds] = useState<RefundItemProps[]>([]);
 
-  function fetchRefunds(event: React.FormEvent) {
-    event.preventDefault();
-    console.log(name);
+  async function fetchRefunds() {
+    try {
+      const response = await api.get<RefundsPaginationAPIResponse>(
+        `/refunds?name=${name.trim()}&page=${page}&perPage=${PER_PAGE}`
+      );
+
+      setRefunds(
+        response.data.refunds.map((refund) => ({
+          id: refund.id,
+          name: refund.user.name,
+          description: refund.name,
+          amount: formatCurrency(refund.amount),
+          categoryImg: CATEGORIES[refund.category].icon,
+        }))
+      );
+
+      setTotalOfPage(response.data.pagination.totalPages);
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        return alert(error.response?.data.message);
+      }
+
+      alert("It was not possible to reload");
+    }
   }
 
   function handlePagination(action: "next" | "previous") {
@@ -39,6 +58,10 @@ export function Dashboard() {
       return prevPage;
     });
   }
+
+  useEffect(() => {
+    fetchRefunds();
+  }, []);
 
   return (
     <div className="bg-gray-500 rounded-xl p-10 md:min-w-[768px]">

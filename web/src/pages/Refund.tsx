@@ -7,6 +7,8 @@ import { CATEGORIES, CATEGORIES_KEYS } from "../utils/categories";
 import { Upload } from "../components/Upload";
 import { Button } from "../components/Button";
 import z, { ZodError } from "zod";
+import { AxiosError } from "axios";
+import { api } from "../services/api";
 
 const refundScheme = z.object({
   name: z
@@ -23,13 +25,13 @@ export function Refund() {
   const [amount, SetAmount] = useState("");
   const [category, setCategory] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [filename, setFileName] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
 
   const navigate = useNavigate();
   const params = useParams<{ id: string }>();
   console.log(params.id);
 
-  function onSubmit(event: React.FormEvent) {
+  async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
 
     if (params.id) {
@@ -39,10 +41,24 @@ export function Refund() {
     try {
       setIsLoading(true);
 
+      if (!file) {
+        alert("Select a file of refund");
+      }
+
+      const fileUploadForm = new FormData();
+      fileUploadForm.append("file", file!);
+
+      const response = await api.post("/uploads", fileUploadForm);
+
       const data = refundScheme.parse({
         name,
         category,
         amount: amount.replace(",", "."),
+      });
+
+      await api.post("/refunds", {
+        ...data,
+        filename: response.data.filename,
       });
 
       navigate("/confirm", { state: { fromSubmit: true } });
@@ -51,6 +67,10 @@ export function Refund() {
 
       if (error instanceof ZodError) {
         return alert(error.issues[0].message);
+      }
+
+      if (error instanceof AxiosError) {
+        return alert(error.response?.data.message);
       }
       alert("it was not posssible to realize the solicitation");
     } finally {
@@ -114,9 +134,9 @@ export function Refund() {
         </a>
       ) : (
         <Upload
-          filename={filename && filename.name}
+          filename={file && file.name}
           onChange={(event) =>
-            event.target.files && setFileName(event.target.files[0])
+            event.target.files && setFile(event.target.files[0])
           }
         />
       )}
